@@ -91,4 +91,16 @@ public class MockControlHardware implements ControlHardware {
     public void turnOffHiTempAlarm() {
         this.hiTempAlarm = false;
     }
+
+    String getState() {
+        return String.valueOf(convertBooleanToLetter(heaterState, 'h')) +
+                convertBooleanToLetter(blowerState, 'b') +
+                convertBooleanToLetter(coolerState, 'c') +
+                convertBooleanToLetter(hiTempAlarm, 'h') +
+                convertBooleanToLetter(loTempAlarm, 'l');
+    }
+
+    private char convertBooleanToLetter(boolean state, char letter) {
+        return state ? Character.toUpperCase(letter) : Character.toLowerCase(letter);
+    }
 }
