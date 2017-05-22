@@ -4,62 +4,50 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static be.swsb.cleancode.ch9.EnvironmentController.*;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static be.swsb.cleancode.ch9.HardwareState.*;
 
 public class EnvironmentControllerTest {
 
     private EnvironmentController controller;
-    private MockControlHardware hw;
+    private MockControlHardware controlHardware;
 
     @Before
     public void setUp() throws Exception {
-        hw = new MockControlHardware();
-        controller = new EnvironmentController(hw);
+        controlHardware = new MockControlHardware();
+        controller = new EnvironmentController(controlHardware);
     }
 
     @Test
     public void turnOnCoolerAndBlowerIfTooHot() throws Exception {
-        hw.setTemp(TOO_HOT);
-        controller.tic();
-        assertFalse(hw.heaterState());
-        assertTrue(hw.blowerState());
-        assertTrue(hw.coolerState());
-        assertFalse(hw.hiTempAlarm());
-        assertFalse(hw.loTempAlarm());
+        givenTemp(TOO_HOT);
+        controlHardware.assertOn(BLOWER_STATE, COOLER_STATE);
+        controlHardware.assertOff(HEATER_STATE, HI_TEMP_ALARM, LO_TEMP_ALARM);
     }
 
     @Test
     public void turnOnHeaterAndBlowerIfTooCold() throws Exception {
-        hw.setTemp(TOO_COLD);
-        controller.tic();
-        assertTrue(hw.heaterState());
-        assertTrue(hw.blowerState());
-        assertFalse(hw.coolerState());
-        assertFalse(hw.hiTempAlarm());
-        assertFalse(hw.loTempAlarm());
+        givenTemp(TOO_COLD);
+        controlHardware.assertOn(HEATER_STATE, BLOWER_STATE);
+        controlHardware.assertOff(COOLER_STATE, HI_TEMP_ALARM, LO_TEMP_ALARM);
     }
 
     @Test
     public void turnOnHiTempAlarmAtThreshold() throws Exception {
-        hw.setTemp(WAY_TOO_HOT);
-        controller.tic();
-        assertFalse(hw.heaterState());
-        assertTrue(hw.blowerState());
-        assertTrue(hw.coolerState());
-        assertTrue(hw.hiTempAlarm());
-        assertFalse(hw.loTempAlarm());
+        givenTemp(WAY_TOO_HOT);
+        controlHardware.assertOn(BLOWER_STATE, COOLER_STATE, HI_TEMP_ALARM);
+        controlHardware.assertOff(HEATER_STATE, LO_TEMP_ALARM);
     }
 
     @Test
     public void turnOnLoTempAlarmAtThreshold() throws Exception {
-        hw.setTemp(WAY_TOO_COLD);
+        givenTemp(WAY_TOO_COLD);
+        controlHardware.assertOn(HEATER_STATE, BLOWER_STATE, LO_TEMP_ALARM);
+        controlHardware.assertOff(COOLER_STATE, HI_TEMP_ALARM);
+    }
+
+    private void givenTemp(double wayTooCold) {
+        controlHardware.setTemp(wayTooCold);
         controller.tic();
-        assertTrue(hw.heaterState());
-        assertTrue(hw.blowerState());
-        assertFalse(hw.coolerState());
-        assertFalse(hw.hiTempAlarm());
-        assertTrue(hw.loTempAlarm());
     }
 
 }

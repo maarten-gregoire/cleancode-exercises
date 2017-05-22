@@ -1,6 +1,10 @@
 package be.swsb.cleancode.ch9;
 
-public class MockControlHardware implements ControlHardware {
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+class MockControlHardware implements ControlHardware {
+
     private double temp;
     private boolean heaterState;
     private boolean blowerState;
@@ -90,5 +94,34 @@ public class MockControlHardware implements ControlHardware {
     @Override
     public void turnOffHiTempAlarm() {
         this.hiTempAlarm = false;
+    }
+
+    void assertOn(HardwareState... hardwareStates) {
+        for (HardwareState hardwareState: hardwareStates) {
+            assertTrue(getState(hardwareState));
+        }
+    }
+
+    void assertOff(HardwareState... hardwareStates) {
+        for (HardwareState stateState: hardwareStates) {
+            assertFalse(getState(stateState));
+        }
+    }
+
+    private boolean getState(HardwareState hardwareStateState) {
+        switch (hardwareStateState) {
+            case BLOWER_STATE:
+                return this.blowerState;
+            case COOLER_STATE:
+                return this.coolerState;
+            case HEATER_STATE:
+                return this.heaterState;
+            case HI_TEMP_ALARM:
+                return this.hiTempAlarm;
+            case LO_TEMP_ALARM:
+                return this.loTempAlarm;
+            default:
+                throw new IllegalStateException("Unknown state");
+        }
     }
 }
